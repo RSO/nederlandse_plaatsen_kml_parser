@@ -1,0 +1,12 @@
+[
+  {{#buurten}}
+  {
+    "bu_code": "{{bu_code}}",
+    "coordinates": [
+      {{#external_coordinates}}
+        [{{latitude}}, {{longitude}}]{{^last}},{{/last}}
+      {{/external_coordinates}}
+    ]
+  }{{^last}},{{/last}}
+  {{/buurten}}
+]

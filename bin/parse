@@ -1,0 +1,78 @@
+#!/usr/bin/env ruby
+require 'mustache'
+require 'nokogiri'
+require 'optparse'
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: parser.rb [options]"
+
+  opts.on("-s", "--source KML_FILE", "Which KML file should be parsed?") do |kml|
+    options[:kml] = kml
+  end
+
+  opts.on("-d", "--destination DESTINATION_FILE", "Where do you want the output to be stored?") do |dest|
+    options[:destination] = dest
+  end
+
+  opts.on("-t", "--template_file TEMPLATE_FILE", "The template file") do |temp|
+    options[:template_file] = temp
+  end
+end.parse!
+
+raise OptionParser::MissingArgument if options[:kml].nil? or options[:destination].nil? or options[:template_file].nil?
+
+class Buurten < Mustache
+  def initialize(file, template)
+    self.template_file = template
+
+    @doc = Nokogiri::XML(open(file))
+    @doc.remove_namespaces!
+
+    @placemarks = @doc.css('Placemark')
+
+    placemarks_count = @placemarks.length
+
+    @placemarks = @placemarks.each_with_index.map do |placemark, index|
+      {
+        :bu_code => placemark.css("SimpleData[name='BU_CODE']").first.content,
+        :bu_naam => placemark.css("SimpleData[name='BU_NAAM']").first.content,
+        :gm_naam => placemark.css("SimpleData[name='GM_NAAM']").first.content,
+        :wk_code => placemark.css("SimpleData[name='WK_CODE']").first.content,
+        :gm_code => placemark.css("SimpleData[name='GM_CODE']").first.content,
+        :external_coordinates => build_coordinates(placemark, 'outerBoundaryIs coordinates'),
+        :internal_coordinates => build_coordinates(placemark, 'innerBoundaryIs coordinates'),
+        :last => index == placemarks_count - 1,
+      }
+    end
+  end
+
+  def buurten
+    @placemarks
+  end
+end
+
+def build_coordinates(placemark, selector)
+  coordinates = placemark.css(selector).first
+
+  unless coordinates
+    return nil
+  end
+
+  coordinates = coordinates.content.split ' '
+
+  coordinates_count = coordinates.length
+
+  coordinates.each_with_index.map do |c, i|
+    d = c.split ','
+    {
+      :latitude => d[1],
+      :longitude => d[0],
+      :last => i == coordinates_count - 1
+    }
+  end
+end
+
+File.open(options[:destination], 'w') do |f|
+  f.write Buurten.new(options[:kml], options[:template_file]).render
+end

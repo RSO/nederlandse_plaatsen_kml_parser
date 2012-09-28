@@ -1,0 +1,12 @@
+var buurten = [
+  {{#buurten}}
+  {
+    "buurt": "{{bu_code}}",
+    "coordinates": [
+      {{#external_coordinates}}
+        new google.maps.LatLng({{latitude}}, {{longitude}}),
+      {{/external_coordinates}}
+    ]
+  },
+  {{/buurten}}
+];

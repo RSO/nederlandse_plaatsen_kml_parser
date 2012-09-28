@@ -1,0 +1,11 @@
+from districts.models import District
+from django.contrib.gis.geos import Polygon
+
+{{#buurten}}
+district, created = District.objects.get_or_create(city__name="{{gm_naam}}", name="{{bu_naam}}")
+
+external_coordinates = ({{#external_coordinates}}({{latitude}}, {{longitude}}), {{/external_coordinates}})
+internal_coordinates = ({{#internal_coordinates}}({{latitude}}, {{longitude}}){{/internal_coordinates}})
+
+pol, created = Polygon.objects.get_or_create(district, external_coordinates, internal_coordinates)
+{{/buurten}}
