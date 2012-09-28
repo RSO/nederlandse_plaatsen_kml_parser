@@ -44,18 +44,3 @@ Mustache
 Voor meer vragen over Mustache, zie documentatie:
 
 https://github.com/defunkt/mustache
-
-
-KML
-============
-
-In deze map zitten een tweetal .kml bestanden:
-
-1. groningen.kml: Alle buurten uit de gemeente Groningen
-2. buurten.kml: Alle buurten van Nederland
-
-
-Google Maps
-============
-
-Eén kleine notitie: index.html is een voorbeeld waarin alle polygonen uit ./output/buurten.js worden ingeladen. Deze polygonen hebben echter nog geen ondersteuning voor inner-/outerBoundary's, hierdoor worden op dit moment alleen de externe grenzen gebruikt.
